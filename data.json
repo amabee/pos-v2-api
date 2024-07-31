@@ -1,0 +1,17 @@
+{
+    "SavedItems": [
+        {
+            "cashierID": "02-1920-03954",
+            "customerID": "100144",
+            "items": [
+                {
+                    "barcode": "1001",
+                    "p_name": "Bulad",
+                    "price": "10",
+                    "quantity": "100",
+                    "amount": "1000"
+                }
+            ]
+        }
+    ]
+}

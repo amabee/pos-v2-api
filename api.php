@@ -62,29 +62,85 @@ class Api
         echo json_encode(array("error" => "Product not found"));
     }
 
-    public function addSalesToCurrentCashier($cashierId, $newItem)
+    public function addSalesToCurrentCashier($cashierID, $items)
     {
-        $jsonData = file_get_contents($this->filePath);
-        $data = json_decode($jsonData, true);
-
-        if ($data === null) {
-            echo json_encode(array("error" => "Error reading JSON data"));
-            return;
-        }
-
-        if ($data['cashier']['id'] !== $cashierId) {
-            echo json_encode(array("error" => "Cashier not found"));
-            return;
-        }
-
-        $data['items'][] = $newItem;
-
-        if (file_put_contents($this->filePath, json_encode($data, JSON_PRETTY_PRINT)) === false) {
-            echo json_encode(array("error" => "Error writing JSON data"));
+        if (file_exists($this->filePath)) {
+            $jsonData = file_get_contents(($this->filePath));
+            $data = json_decode($jsonData, true);
         } else {
-            echo json_encode(array("success" => "Sales updated for cashier ID: $cashierId"));
+            echo json_encode(array("error" => "data.json not found wtf!!"));
+
+        }
+
+        if (isset($data['SavedSales'])) {
+            $data["SavedSales"] = [];
+        }
+
+        $newSales = [
+            "cashierID" => $cashierID,
+            "items" => $items
+        ];
+
+        $data["SavedSales"][] = $newSales;
+
+        if (file_put_contents($this->filePath, json_encode($data, JSON_PRETTY_PRINT))) {
+            echo json_encode(array("success" => "Sales saved"));
+        } else {
+            echo json_encode(array("error" => "Wtf error!????"));
         }
     }
+
+    public function saveSomeItems($cashierID, $customerID, $items)
+    {
+
+        if (file_exists($this->filePath)) {
+            $jsonData = file_get_contents(($this->filePath));
+            $data = json_decode($jsonData, true);
+
+            if (!isset($data["SavedItems"])) {
+                $data["SavedItems"] = [];
+            }
+            $newTransaction = [
+                'cashierID' => $cashierID,
+                'customerID' => $customerID,
+                'items' => $items
+            ];
+
+            $data['SavedItems'][] = $newTransaction;
+
+            if (file_put_contents($this->filePath, json_encode($data, JSON_PRETTY_PRINT))) {
+                echo json_encode(array('success' => 'Successfully Added Items to the saved items'));
+            } else {
+                echo json_encode(array('error' => 'wtf!'));
+            }
+
+
+        }
+    }
+
+    public function retrieveSaveItems($cashierID, $customerID)
+    {
+
+        if (!file_exists($this->filePath)) {
+            throw new Exception('Data file not found.');
+        }
+
+        $jsonData = file_get_contents($this->filePath);
+
+        $data = json_decode($jsonData, true);
+
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new Exception('Error decoding JSON data.');
+        }
+
+        $filteredItems = array_filter($data['SavedItems'], function ($savedItem) use ($cashierID, $customerID) {
+            return $savedItem['cashierID'] === $cashierID && $savedItem['customerID'] === $customerID;
+        });
+
+        return $filteredItems;
+    }
+
 }
 
 $api = new Api();
@@ -94,6 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 $operation = isset($_REQUEST["op"]) ? $_REQUEST["op"] : null;
+error_log("Received operation: " . $operation);
 
 switch ($operation) {
     case "login":
@@ -116,12 +173,45 @@ switch ($operation) {
         break;
 
     case "addSalesToCurrentCashier":
-        if (isset($_REQUEST["cid"]) && isset($_REQUEST["items"])) {
-            $cashierId = $_REQUEST["cid"];
+        if (isset($_REQUEST["cashierID"]) && isset($_REQUEST["items"])) {
+            $cashierId = $_REQUEST["cashierID"];
             $newItem = $_REQUEST["items"];
             $api->addSalesToCurrentCashier($cashierId, $newItem);
         } else {
             echo json_encode(array("error" => "Missing cashier ID or items"));
+        }
+        break;
+
+    case "saveSomeItems":
+        if (isset($_REQUEST["cashierID"])) {
+            if (isset($_REQUEST["customerID"])) {
+                if (isset($_REQUEST["items"])) {
+                    $cashierID = $_REQUEST["cashierID"];
+                    $customerID = $_REQUEST["customerID"];
+                    $items = $_REQUEST["items"];
+                    $api->saveSomeItems($cashierID, $customerID, $items);
+                } else {
+                    echo json_encode(array("error" => "Items not found wtf!"));
+                }
+            } else {
+                echo json_encode(array("error" => "Customer ID Not Set"));
+            }
+        } else {
+            echo json_encode(array("error" => "Casheir ID not set!"));
+        }
+        break;
+
+    case "retrieveSaveItems":
+        if (isset($_REQUEST["cashierID"])) {
+            if (isset($_REQUEST["customerID"])) {
+                $cashierID = $_REQUEST["cashierID"];
+                $customerID = $_REQUEST["customerID"];
+                $api->retrieveSaveItems($cashierID, $customerID);
+            } else {
+                echo json_encode(array("error" => "Customer ID is not set"));
+            }
+        } else {
+            echo json_encode(array("error" => "Cashier ID is not set"));
         }
         break;
 
