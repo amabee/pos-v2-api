@@ -11,16 +11,25 @@ class Api
     public function Login($username, $password)
     {
         if ($username == "aiahkins" && $password == "password") {
-            $CurrentUser = ['username' => "aiahkins", "CID" => '02-1920-03954'];
+            $CurrentUser = [
+                'success' => true,
+                'message' => 'Login successful',
+                'data' => ['username' => "aiahkins", "CID" => '02-1920-03954', "image" => "image1.jpg"]
+            ];
         } else if ($username == "maloiskie" && $password == "password") {
-            $CurrentUser = ['username' => "maloiskie", "CID" => '02-1920-03955'];
+            $CurrentUser = [
+                'success' => true,
+                'message' => 'Login successful',
+                'data' => ['username' => "maloiskie", "CID" => '02-1920-03955']
+            ];
         } else {
-            echo json_encode(array("error" => "User not found!"));
+            echo json_encode(['success' => false, 'message' => 'User not found!']);
             return;
         }
 
         echo json_encode($CurrentUser);
     }
+
 
     public function GetItem($barCode)
     {
