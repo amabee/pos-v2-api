@@ -131,7 +131,7 @@ class Api
     {
 
         if (!file_exists($this->filePath)) {
-            throw new Exception('Data file not found.');
+            echo json_encode(array("error" => 'Data file not found.'));
         }
 
         $jsonData = file_get_contents($this->filePath);
@@ -140,14 +140,14 @@ class Api
 
 
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception('Error decoding JSON data.');
+            echo json_encode(array("error" => 'Error decoding JSON data.'));
         }
 
         $filteredItems = array_filter($data['SavedItems'], function ($savedItem) use ($cashierID, $customerID) {
             return $savedItem['cashierID'] === $cashierID && $savedItem['customerID'] === $customerID;
         });
 
-        return $filteredItems;
+        echo json_encode($filteredItems);
     }
 
 }
