@@ -129,25 +129,51 @@ class Api
 
     public function retrieveSaveItems($cashierID, $customerID)
     {
-
         if (!file_exists($this->filePath)) {
-            echo json_encode(array("error" => 'Data file not found.'));
+            return json_encode(array("error" => 'Data file not found.'));
         }
 
         $jsonData = file_get_contents($this->filePath);
-
         $data = json_decode($jsonData, true);
 
-
         if (json_last_error() !== JSON_ERROR_NONE) {
-            echo json_encode(array("error" => 'Error decoding JSON data.'));
+            return json_encode(array("error" => 'Error decoding JSON data.'));
         }
 
         $filteredItems = array_filter($data['SavedItems'], function ($savedItem) use ($cashierID, $customerID) {
             return $savedItem['cashierID'] === $cashierID && $savedItem['customerID'] === $customerID;
         });
 
-        echo json_encode($filteredItems);
+        $items = [];
+        foreach ($filteredItems as $savedItem) {
+            $items = array_merge($items, $savedItem['items']);
+        }
+
+        echo json_encode($items);
+    }
+
+    public function retrieveCustomerIDs()
+    {
+        if (!file_exists($this->filePath)) {
+            echo json_encode(array("error" => 'Data file not found.'));
+            return;
+        }
+
+        $jsonData = file_get_contents($this->filePath);
+        $data = json_decode($jsonData, true);
+
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            echo json_encode(array("error" => 'Error decoding JSON data.'));
+            return;
+        }
+
+        $customerIDs = array_map(function ($savedItem) {
+            return $savedItem['customerID'];
+        }, $data['SavedItems']);
+
+        $uniqueCustomerIDs = array_unique($customerIDs);
+
+        echo json_encode(array_values($uniqueCustomerIDs));
     }
 
 }
@@ -222,6 +248,10 @@ switch ($operation) {
         } else {
             echo json_encode(array("error" => "Cashier ID is not set"));
         }
+        break;
+
+    case "getAllCustomerID":
+        $api->retrieveCustomerIDs();
         break;
 
     default:

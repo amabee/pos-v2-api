@@ -2,14 +2,54 @@
     "SavedItems": [
         {
             "cashierID": "02-1920-03954",
-            "customerID": "100144",
+            "customerID": "Mikha",
             "items": [
                 {
-                    "barcode": "1001",
-                    "p_name": "Bulad",
-                    "price": "10",
+                    "barcode": "1002",
+                    "p_name": "Mantika",
+                    "price": "30",
                     "quantity": "100",
-                    "amount": "1000"
+                    "amount": "3000"
+                }
+            ]
+        },
+        {
+            "cashierID": "02-1920-03954",
+            "customerID": "Mikha",
+            "items": [
+                {
+                    "barcode": "1002",
+                    "p_name": "Mantika",
+                    "price": "30",
+                    "quantity": "100",
+                    "amount": "3000"
+                },
+                {
+                    "barcode": "1005",
+                    "p_name": "Shampoo",
+                    "price": "15",
+                    "quantity": "100",
+                    "amount": "1500"
+                }
+            ]
+        },
+        {
+            "cashierID": "02-1920-03954",
+            "customerID": "Jho",
+            "items": [
+                {
+                    "barcode": "1004",
+                    "p_name": "Sabon",
+                    "price": "35",
+                    "quantity": "100",
+                    "amount": "3500"
+                },
+                {
+                    "barcode": "1005",
+                    "p_name": "Shampoo",
+                    "price": "15",
+                    "quantity": "100",
+                    "amount": "1500"
                 }
             ]
         }
